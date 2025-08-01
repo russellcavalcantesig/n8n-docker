@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  n8n:
+    image: n8nio/n8n
+    volumes:
+      - ./n8n:/home/node/.n8n
+    restart: always
+    environment:
+      - N8N_SECURE_COOKIE=true  # Alterado para true
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=imts
+      - N8N_BASIC_AUTH_PASSWORD=*********
+      - N8N_HOST=n8n.imts.com.br
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https  # Alterado para https
+      - N8N_WEBHOOK_URL=https://n8n.imts.com.br
+    # Não expõe a porta diretamente, apenas para a rede interna
+    expose:
+      - "5678"
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt/live/n8n.imts.com.br
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - n8n
+    networks:
+      - app-network
+    expose:
+      - 443
+networks:
+  app-network:
+    driver: bridge
