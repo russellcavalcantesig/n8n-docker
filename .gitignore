@@ -1,0 +1,10 @@
+*database.sqlite
+*.log
+*.env
+*.pid
+*.swp
+*.bak
+*.tmp
+*.DS_Store
+node_modules/
+dist/

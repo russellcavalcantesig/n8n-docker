@@ -4,22 +4,29 @@ services:
   n8n:
     image: n8nio/n8n
     volumes:
-      - ./n8n:/home/node/.n8n
+      - ./sig-n8n/n8n:/home/node/.n8n
     restart: always
     environment:
-      - N8N_SECURE_COOKIE=true  # Alterado para true
+      - N8N_SECURE_COOKIE=false  # Alterado para true
+      # - N8N_SECURE_COOKIE=true  # Alterado para true
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=imts
       - N8N_BASIC_AUTH_PASSWORD=*********
       - N8N_HOST=n8n.imts.com.br
       - N8N_PORT=5678
-      - N8N_PROTOCOL=https  # Alterado para https
-      - N8N_WEBHOOK_URL=https://n8n.imts.com.br
+      # - N8N_PROTOCOL=https  
+      - N8N_PROTOCOL=http  # Alterado para https
+      - N8N_WEBHOOK_URL=http://0.0.0.0:5678
+      # - N8N_WEBHOOK_URL=https://n8n.imts.com.br
     # Não expõe a porta diretamente, apenas para a rede interna
     expose:
       - "5678"
+    ports:
+      - "5678:5678"  # Mantém a porta mapeada para acesso local, se necessário
     networks:
-      - app-network
+      - sig-network
+# feito dessa forma para que se possa acessar de forma local 
+    # e também de forma externa via nginx
 
   nginx:
     image: nginx:alpine
@@ -36,6 +43,7 @@ services:
     networks:
       - app-network
     expose:
+      - 80
       - 443
 networks:
   app-network:
